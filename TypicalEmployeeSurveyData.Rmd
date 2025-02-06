@@ -1,0 +1,114 @@
+---
+title: "TypicalEmployeeSurveyData"
+output: html_document
+date: "2025-02-06"
+---
+
+```{r}
+
+Typical_Employee_Survey_Data <- read.csv("C:\\Users\\anrib\\Downloads\\Typical_Employee_Survey_Data.csv",header = FALSE)
+
+#Nameing the Colums
+
+names(Typical_Employee_Survey_Data)[1] <- "Age"
+names(Typical_Employee_Survey_Data)[2] <- "Gender"
+names(Typical_Employee_Survey_Data)[3] <- "Satisfaction"
+names(Typical_Employee_Survey_Data)[4] <- "JobCharacteristic"
+names(Typical_Employee_Survey_Data)[5] <- "YearsWorked"
+names(Typical_Employee_Survey_Data)[6] <- "Promotion"
+names(Typical_Employee_Survey_Data)[7] <- "DecisionMakingOpportunity"
+names(Typical_Employee_Survey_Data)[8] <- "BudgetaryDecisionParticipation"
+names(Typical_Employee_Survey_Data)[9] <- "Proudness"
+names(Typical_Employee_Survey_Data)[10] <- "StayingInCompanyLikelyhood"
+names(Typical_Employee_Survey_Data)[11] <- "RelationsWithCoworkers"
+ 
+Typical_Employee_Survey_Data
+
+#Changing into Factors
+
+Typical_Employee_Survey_Data$Gender <- factor(Typical_Employee_Survey_Data$Gender, levels = c(1,2), labels = c("Male","Female"))
+ 
+Typical_Employee_Survey_Data$Satisfaction <- factor(Typical_Employee_Survey_Data$Satisfaction, levels = c(1,2,3,4), labels = c("Very Satisfied","Moderately Satisfied","A Little Dissatisfied","Very Dissatisfied"))
+ 
+Typical_Employee_Survey_Data$JobCharacteristic <- factor(Typical_Employee_Survey_Data$JobCharacteristic, levels = c(1,2,3,4,5), labels = c("High Income","No Danger of Being Fired","Flexible Hours","Opportunities for Advancement","Enjoying the Work"))
+ 
+Typical_Employee_Survey_Data$Promotion <- factor(Typical_Employee_Survey_Data$Promotion, levels = c(1,2,3,4,5), labels = c("Very Likely","Likely","Not Sure","Unlikely","Very Unlikely"))
+ 
+Typical_Employee_Survey_Data$DecisionMakingOpportunity <- factor(Typical_Employee_Survey_Data$DecisionMakingOpportunity, levels = c(1,2,3,4), labels = c("Always","Much of the Time","Sometimes","Never"))
+ 
+Typical_Employee_Survey_Data$BudgetaryDecisionParticipation <- factor(Typical_Employee_Survey_Data$BudgetaryDecisionParticipation, levels = c(1,2), labels = c("Yes","No"))
+ 
+Typical_Employee_Survey_Data$Proudness <- factor(Typical_Employee_Survey_Data$Proudness, levels = c(1,2,3,4), labels = c("Very Proud","Somewhat Proud","Indifferent","Not At All Proud"))
+ 
+Typical_Employee_Survey_Data$StayingInCompanyLikelyhood <- factor(Typical_Employee_Survey_Data$StayingInCompanyLikelyhood, levels = c(1,2,3,4,5), labels = c("Very Likely","Likely","Not Sure","Unlikely","Very Unlikely"))
+ 
+Typical_Employee_Survey_Data$RelationsWithCoworkers <- factor(Typical_Employee_Survey_Data$RelationsWithCoworkers, levels = c(1,2,3,4,5), labels = c("Very Good","Good","So So","Bad","Very Bad"))
+ 
+#Summary and Graphs
+
+fivenum(Typical_Employee_Survey_Data$Age)
+boxplot(Typical_Employee_Survey_Data$Age, main = "Age of People", xlab = "People", ylab = "Age")
+
+#The minimum age of the participant is 20 with the max being 64. When given the random chance to ask someones age 75% of them will say they are 44 years old or younger. The average age is 39.1 years old showing a majority of the workers are around 20-44 years old.
+
+fivenum(Typical_Employee_Survey_Data$YearsWorked)
+boxplot(Typical_Employee_Survey_Data$YearsWorked, main = "Years Worked", xlab = "People", ylab = "Years")
+
+#The shortest time working with the company is less than a year where the longest is 52 years. Where the average time working with the company based on the participants is 8 years. And 75% of the participants will have worked for the company for 11 years or less.
+
+barplot(table(Typical_Employee_Survey_Data$Gender), main = "Gender", xlab = "", ylab = "# of People")
+summary(Typical_Employee_Survey_Data$Gender)
+
+#Out of 122 participants, 70 of them were Male and 52 of them were Female. A majority of the participants were male making up 57% of the responses.
+
+pie(table(Typical_Employee_Survey_Data$Satisfaction), main = "Satisfaction", xlab = "", ylab = "# of Response")
+summary(Typical_Employee_Survey_Data$Satisfaction)
+
+#A large majority of the participants showed a positive response on their satisfaction with their job. 65 participants said they were very satisfied and 44 said they were moderately satisfied. This makes up about 89% of participants being positive responses.
+
+pie(table(Typical_Employee_Survey_Data$JobCharacteristic), main = "Job Characteristics", xlab = "", ylab = "# of Response")
+summary(Typical_Employee_Survey_Data$JobCharacteristic)
+
+#The main job characteristics the participants thought were the most important was enjoying the work, 64, high income, 26, and opportunities for Advancement, 18. With the majority of the participants wanting to work in an environment that allows them to enjoy their work.
+                 
+pie(table(Typical_Employee_Survey_Data$Promotion), main = "Promotion Likelyhood", xlab = "", ylab = "# of Response")
+summary(Typical_Employee_Survey_Data$Promotion)
+
+#Majority of the participants said they were very unlikely to receive a promotion. However looking at the other responses it is an even response rate on all the categories.
+  
+pie(table(Typical_Employee_Survey_Data$DecisionMakingOpportunity), main = "Opportunity to Make Decisions", xlab = "", ylab = "# of Response")
+summary(Typical_Employee_Survey_Data$DecisionMakingOpportunity)
+
+#When asked if the participants were given opportunities to make decisions majority said they were given much of the time to make decisions, 57. With only 3 mentioning they have never been given a decision making opportunity.
+          
+barplot(table(Typical_Employee_Survey_Data$BudgetaryDecisionParticipation), main = "Participation in Budegetary Decisions", xlab = "", ylab = "# of Response")
+summary(Typical_Employee_Survey_Data$BudgetaryDecisionParticipation)
+
+#Out of 122 participants, 67 of them responded that they did take part in budgetary decisions within the company and 55 did not. This is a slight majority for the participation giving 55% of the participants budgetary decision opportunities.
+ 
+pie(table(Typical_Employee_Survey_Data$Proudness), main = "Proudness of Working in the Company", xlab = "", ylab = "# of Response")
+summary(Typical_Employee_Survey_Data$Proudness)
+
+#The vast majority of 92% of the participants were proud of their job. 37 of them were very proud and 75 were somewhat proud. With only one participant mentioning they were not at all proud of their job.
+      
+summary(Typical_Employee_Survey_Data$StayingInCompanyLikelyhood)
+pie(table(Typical_Employee_Survey_Data$StayingInCompanyLikelyhood), main = "Likelyhood of Staying in the Company", xlab = "", ylab = "# of Response")
+
+#When given the scenario where if offered more money would the participants leave the company 30 of them said it was likely and 16 said very likely they will stay with the company. However 57 responded they were unlikely to stay with the company.
+
+summary(Typical_Employee_Survey_Data$RelationsWithCoworkers)
+pie(table(Typical_Employee_Survey_Data$RelationsWithCoworkers), main = "Relationship with Coworkers", xlab = "", ylab = "# of Response")
+
+#51 participants said they had a very good relationship with their coworkers and 49 said they were good. It is also very important to note that zero participants have said they had a very bad relation with their coworkers. This shows how the workers are close together and can collaborate and rely on each other.
+
+#Plot Graphs
+
+plot(as.numeric(Typical_Employee_Survey_Data$Satisfaction), Typical_Employee_Survey_Data$YearsWorked, main = "Correlation between the Years Worked and Satisfaction Levels", xlab = "Satisfaction", ylab = "Years Worked")
+
+#This graph shows that a majority of all participants are satisfied with their work but it is important to note that there was no workers who worked with the company for more than 30 years responded they were dissatisfied, with a majority of those responds being from participants who worked for less than 10 years.
+
+plot(as.numeric(Typical_Employee_Survey_Data$JobCharacteristic), Typical_Employee_Survey_Data$Age, main = "Correlation between Age and Important Job Characteristic", xlab = "Job Characteristics", ylab = "Age")
+
+#This is no clear correlation between age and job characteristics but it is interesting to see how only those between 30-45 have responded they saw flexible hours at work being an important characteristics. This can be inferred due to during this age range many major life situations tend to occur like growing a family.
+  
+```
