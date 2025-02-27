@@ -1,0 +1,89 @@
+---
+title: "WorldTourEcon"
+output: html_document
+date: "2025-02-26"
+---
+
+```{r}
+#Data Dictionary
+
+#Variable             Measurement Unit		  Description
+#Country	            String	    	        Name of the Country
+#Country Code	        String	    	        The Code name of the Country
+#Year	                Numeric	    	        The year data was collected
+#Tourism Receipts 	  Dollar(US)  	        Income from international tourism (in millions)
+#Tourism Arrivals	    Numeric	            	# of international arrivals in the country
+#Tourism Exports	    Percentage          	Share of exports derived from tourism receipts 
+#Tourism Departures	  Numeric	            	# of residents traveling abroad
+#Tourism Expenditures	Dollar (US)	        	Spending by international tourists (in thousands)
+#GDP	                Dollar (US)	        	Gross Domestic Product of the country (in millions)
+#Inflation	          Percentage	        	Annual percentage change in price level
+#Unemployment	        Percentage	        	% of labor force that is unemployed but actively seeking work
+
+##Data Collection Methodology
+#This dataset shows data from over 200 countries around the world spanning the years 1999-2023. The data source is from the World Bank’s economic and tourism database. The data was collected and uploaded in one set, but was collected yearly by the World Bank’s database.
+
+#I chose this dataset because the tourism industry is a complicated industry that has so many different factors that can affect it. Seeing the traveling trends and making predictions on why these trends occur throughout the years would be interesting to analyze. Understanding that all the countries in this dataset is not a standalone variable but is impacted by other countries would be cool to see which countries seem to have a strong tourism relationship. 
+
+library(fpp2)
+
+World_Tourism_Data <- read.csv("C:\\Users\\anrib\\OneDrive\\Documents\\WorldTourismEcon.csv",header = FALSE)
+
+names(World_Tourism_Data)[1] <- "Country"
+names(World_Tourism_Data)[2] <- "CountryCode"
+names(World_Tourism_Data)[3] <- "Year"
+names(World_Tourism_Data)[4] <- "TourismReceipts"
+names(World_Tourism_Data)[5] <- "TourismArrivals"
+names(World_Tourism_Data)[6] <- "TourismExports"
+names(World_Tourism_Data)[7] <- "TourismExpenditures"
+names(World_Tourism_Data)[8] <- "GDP"
+names(World_Tourism_Data)[9] <- "Inflation"
+names(World_Tourism_Data)[10] <- "Unemployment"
+
+World_Tourism_Data
+
+Year <- World_Tourism_Data$Year
+TourismReceipts <-World_Tourism_Data$TourismReceipts
+TourismArrivals <- World_Tourism_Data$TourismArrivals
+TourismExpenditures <-World_Tourism_Data$TourismExpenditures
+
+#This graph shows how there was a boom in Expenditures done by tourist starting 2006 where the expenditures went from 79,215,000 in 2005 to a jump to 148,511,000 in 2006. This can be explained by a greater emphasize on the tourism industry. Then there was another trend downwards as the recession took over to go back upwards until 2019. 2020 saw an unpredictable occurrence with the pandemic that resulted in the plummet to only 60,549,000.
+plot(TourismExpenditures)
+acf(TourismExpenditures)
+
+mean_forecast <- meanf(TourismExpenditures,5)
+#The mean forecast shows the average between the two most recent outputs which is heavily effected due to the outline in 2020. With the other plots I will be comparing using MAPE to test for accuracy. The means MAPE is 26.02 which shows this may not be the most accurate prediction for this model. However due to 2020 being an outlier the forecasts will reflect that comparison to the outlier. 
+plot(mean_forecast)
+accuracy(mean_forecast)
+
+naive_forecast <- naive(TourismExpenditures,5)
+#The naive forecast uses the outlier of 2020 in tourism expenditures and puts the most weight onto it to predict next years amount. In this case due to the circumstances with the pandemic this prediction would be more accurate than using the mean method. Its MAPE is 15.22 which is significantly lower than the mean MAPE.
+plot(naive_forecast)
+accuracy(naive_forecast)
+
+rwf_forecast <- rwf(TourismExpenditures,5,drift = TRUE)
+#The random walk forecast is a set up from the naive forecast where the predicted values are reliant on the most recent output then continues the pattern. So this forecast shows a slight decrease over time and with a MAPE of 15.21 which is similar to the naive forecast. 
+plot(rwf_forecast)
+accuracy(rwf_forecast)
+
+snaive_forecast <- snaive(TourismExpenditures,5)
+#The seasonal naive forecast showed the same results as the naive model with the same MAPE of 15.22.
+plot(snaive_forecast)
+accuracy(snaive_forecast)
+
+MA5_forecast <- ma(TourismExpenditures,order = 5)
+plot(MA5_forecast)
+
+MA9_forecast <- ma(TourismExpenditures,order=9)
+plot(MA9_forecast)
+
+#Putting all the forecast together you are able to see the bigger picture in the forecast and how they differ. Within this database using the moving averages would be the best way to try to smooth the data to see what pattern the data can show. But when comparing the MAPE it looks like the naive forecast are the choice for this database that will result in a lower % chance error.
+plot(mean_forecast)
+lines(naive_forecast$mean, col="red")
+lines(rwf_forecast$mean, col="blue")
+lines(snaive_forecast$mean, col="green")
+lines(MA5_forecast,col="yellow")
+lines(MA9_forecast,col="pink")
+
+```
+
