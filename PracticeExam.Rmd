@@ -1,0 +1,60 @@
+---
+title: "PracticeMidterm"
+output: html_document
+date: "2025-03-03"
+---
+
+```{r}
+
+library(fpp2)
+
+arrivals
+USArrivals <- arrivals[,4]
+
+#This plot shows a seasonal graph for the arrivals in the US. There is a slow upwards trend within the graph showing the increases in US arrivals throughout the years. 
+plot(USArrivals)
+
+#The minimum in the graph is 23.72 with the max of 136.09. The median amount is 85.88 with the mean being close with 84.85. The first quartile is 63.95 and the third quartile is 108.98. 
+summary(USArrivals)
+acf(USArrivals)
+#The boxplot shows that a majority of the arrivals will fall between the 63.95 and 108.98 arrivals with the mean being 85.88.
+boxplot(USArrivals)
+
+stl_decomp_Arrivals <- stl(USArrivals, s.window = "periodic")
+#Yes the ts is seasonal due to the repeated patterns within a fixed interval. During the second and third quarters there is a negative seasonality and the first and fourth have a positive seasonality. This can be due to the first and fourth quarters is that Australia is experiencing their warmer seasons so more people travel between those times and the first and third quarter are the winter seasons so many do not travel as much.
+plot(stl_decomp_Arrivals)
+
+seasadj(stl_decomp_Arrivals)
+#There is a big fluctuations when using seasonality adjusted between the actual and the adjusted. But they follow a similar pattern.
+plot(USArrivals)
+lines(seasadj(stl_decomp_Arrivals),col="Red")
+
+#The ts is an additive model when using the decompose function.
+decompose(USArrivals)
+
+decomArrival <- decompose(USArrivals)
+attributes(decomArrival)
+seasadj(decomArrival)
+
+naive_forecast_Arrivals <- naive(USArrivals)
+naive_forecast_Arrivals
+#The naive forecast used the most recent output as the forecast. so in this case the forecast for the next couple of years is 106.54 with a low prediction of 90.5 and a high prediction of 122.57.
+plot(naive_forecast_Arrivals)
+#The accuracy of the model is good with the MASE score being 1.313 which is a low percentage of error. This means that the forecast will most likely be close to the actual.
+accuracy(naive_forecast_Arrivals)
+
+residuals(naive_forecast_Arrivals)
+plot(residuals(naive_forecast_Arrivals))
+
+ResArrivals <- residuals(naive_forecast_Arrivals)
+#The residuals shows how close the forecast amount compares to the accurate amount. A majority of the residuals lies between -10 and 10 which shows that the predictions are somewhat accurate.
+hist(ResArrivals)
+#The acf tells us that there is data that is significant every two lags that go from positive to negative in a pattern implying a seasonality pattern.
+Acf(ResArrivals)
+
+HWArrivals <- HoltWinters(USArrivals)
+fitted(HWArrivals)
+plot(fitted(HWArrivals))
+plot(HWArrivals)
+```
+
