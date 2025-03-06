@@ -52,9 +52,80 @@ hist(ResArrivals)
 #The acf tells us that there is data that is significant every two lags that go from positive to negative in a pattern implying a seasonality pattern.
 Acf(ResArrivals)
 
-HWArrivals <- HoltWinters(USArrivals)
-fitted(HWArrivals)
-plot(fitted(HWArrivals))
-plot(HWArrivals)
+#Fitted vs Residuals
+plot(as.numeric(naive_forecast_Arrivals$fitted),as.numeric(naive_forecast_Arrivals$residuals))
+
+#Actual vs Residuals
+plot(as.numeric(USArrivals),as.numeric(naive_forecast_Arrivals$residuals))
+
+
+MA3ForecastArrivals <- ma(USArrivals,order=3)
+MA6ForecastArrivals <- ma(USArrivals,order=6)
+MA9ForecastArrivals <- ma(USArrivals,order=9)
+
+plot(USArrivals)
+#As the moving avg goes up the line is smoothed more and seasonality is slowly removed approaching a trending line. 
+lines(MA3ForecastArrivals,col="Red")
+lines(MA6ForecastArrivals,col="Blue")
+lines(MA9ForecastArrivals,col="Green")
+
+
+etsArrivals <- ets(USArrivals)
+#The alpha is .5256 which means that the data is approaching a more naive model where certain points are more important than others. The initial states is 32.7911 where it represents the first number the model based forecast off of. Sigma is 7.8292 which shows the standard deviation of the residuals of the database model.
+etsArrivals
+plot(etsArrivals)
+#The residuals tells us the more recent data has more accuracy and fit the model well compared to past events.
+plot(etsArrivals$residuals)
+#this graph tells us that a majority of the residuals are around -10 and 10 which implies the model is pretty accurate at predicting the values.
+hist(etsArrivals$residuals)
+
+plot(as.numeric(etsArrivals$fitted),as.numeric(etsArrivals$residuals))
+
+plot(as.numeric(USArrivals),as.numeric(etsArrivals$residuals))
+
+Acf(etsArrivals$residuals)
+accuracy(etsArrivals)
+
+forecast(etsArrivals)
+plot(forecast(etsArrivals))
+
+#The simple smoothing is a good forecast because when doing the accuracy measure the forecast will only have a 0.747 percent chance of showing an error in MASE. The forecast predicts that next year will be a 121.6039 with a low of f111.57035 and a high of 131.6374.
+
+
+HWForecastArrival <- HoltWinters(USArrivals)
+plot(HWForecastArrival)
+#The alpha is .4829 meaning it is between 1 and 0 but closer to zero meaning it is approaching a more simple avg. Beta is 0 meaning there is no trend in this database. Gamma is .3445 which shows how seasonal the data is and because it is closer to 0 there is a higher chance that the historical data is more important.
+stat(HWForecastArrival)
+
+ResHW <- forecast(HWForecastArrival)
+#The redisuals tells me that the models is pretty accurate a predicting the amounts very close to the actual. But the outlier creates such a large distance between the residuals it shows the model cannot handle outliers effectively.
+plot(ResHW$residuals)
+#Shows a majority of the residuals fall under -5 and 5 which shows how acurate the model will be exculing the outliers.
+hist(ResHW$residuals)
+
+plot(as.numeric(ResHW$fitted),as.numeric(ResHW$residuals))
+
+plot(as.numeric(USArrivals),as.numeric(ResHW$residuals))
+
+Acf(ResHW$residuals)
+accuracy(ResHW)
+
+forecast(HWForecastArrival)
+#The accuracy is pretty good when comparing the MASE of .7555 and the forecast is 124.8122 with a low of 114.93404 and a high of 134.6903.
+plot(forecast(HWForecastArrival))
+
+#The naive forecast places the most importance on the most recent input of a data set. This is useful when only the most recent data is relevant and historical data is irrelevant. The worst accuracy measure for this model would be the RMSE with a 12.5191 percent chance of an error. The best would be the MASE measure with a 1.312846 chance of error.
+plot(naive_forecast_Arrivals)
+accuracy(naive_forecast_Arrivals)
+
+#The exponential smoothing method uses a moving avg system where most recent data will be more significant while oldest data will have less significance when making the forecast. This is useful as this model still considers all the data but allocates weights to make sure the forecast is accurate in retrospect. The best accuracy measure is the MASE with 0.7476 chance of error in its prediction. The worst is the RMSE with 7.642 chance of error.
+plot(forecast(etsArrivals))
+accuracy(etsArrivals)
+
+#The Holt-Winters method uses the avg, slope, and seasonality pattern in order to forecast. This is useful because this model is especially accurate with data that shows seasonality and trend. The best accuracy measure is MASE with .7555 and the worst is RMSE with 7.6956.
+plot(ResHW)
+accuracy(ResHW)
+
+#The data of the arrivals from the US to Australia shows a seasonal pattern that shows a positive slope towards the 1st and 4th quarter and a negative slope towards the 2nd and 3rd quarter. This can be due to Australia having warming seasons during the 1st and 4th quarters of the year and the 2nd and 3rd quarters being colder for traveling. Throughout the years there has been an upwards trajectory until around 2000 where the amount of travel has stayed within a similar range staying relatively flat. Based on my analysis the next 2 years would remain in a similar range keeping the pattern relatively flat. Based on the most recent output of 2012 Q3 the Naive forecast with a residual of .84 was the closest in its prediction then it was exponential smoothing forecast with a residual of -5.96, lastly Holt-Winters forecast with a residual of -7.77. 
 ```
 
