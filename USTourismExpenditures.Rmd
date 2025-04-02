@@ -1,0 +1,154 @@
+---
+title: "USTourismExp"
+output: html_document
+date: "2025-04-01"
+---
+
+```{r}
+library(fpp)
+library(fpp2)
+library(forecast)
+
+#Data Dictionary
+#Year         The year of the international tourism expenditures
+#Expenditures The amount of US Expenditures on international tourism (in millions)
+
+#Data Collection Methodology
+#This data is used from the World Bank Group and their analysis of US international tourism expenditures between 1995-2020. They defined international tourism as "expenditures of international outbound visitors in other countries, including payments to foreign carriers for international transport. These expenditures may include those by residents traveling abroad as same-day visitors." The data is represented in US dollars.
+
+#I chose this data set as it shows an interesting perspective of how the US responds to different economic situations across the years and how that effects their international tourism expenditures.
+
+USTourismExp <- read.csv("C:\\Users\\anrib\\OneDrive\\Documents\\USTourismExpData.csv",header = FALSE)
+names(USTourismExp)[1] <- "Year"
+names(USTourismExp)[2] <- "Expenditures (in Millions)"
+
+USTourismExp
+
+TourismExpTS <- ts(USTourismExp$`Expenditures (in Millions)`, start = c(USTourismExp$Year[1]), frequency = 1)
+
+#In this dataset there was a trend upwards in the US tourism expenditures. However in 2020 there is a drastic drop in expenditures indicating the impacts of the pendemic on tourism expenditures. 
+plot(TourismExpTS, main= "US Tourism Expenditures", xlab= "Year", ylab= "Expenditures (in millions)")
+#The Acf backs up the graph showing a trend pattern within a 14 lag. 
+Acf(TourismExpTS, main= "Acf of Tourism Expenditures")
+
+summary(TourismExpTS)
+#The boxplot takes the amounts shown in the summary and puts it into a graph. It shows the range with the min being 48837 and the max being 186079. The graph also shows the quartiles (1st = 79949 and 3rd = 136706) and the median and mean (109166 and 109808 respectively).
+boxplot(TourismExpTS, main="Boxplot of Tourism Expenditures", ylab="Expenditures (in millions)")
+
+#Naive Model
+naive(TourismExpTS)
+NaiveExp <- naive(TourismExpTS)
+
+#Residual Analysis
+
+#The naive model looks to have a good prediction model as it stayed consistently within the range of 0. However there is a large underestimation associated with the 2020 prediction.
+plot(NaiveExp$residuals, main= "Residuals for Naive Model", ylab = "Residuals")
+#The histogram shows the same pattern as the plot.
+hist(NaiveExp$residuals, main = "Histogram for Naive Model", xlab= "Residuals")
+
+#In both the graphs it shows that there is a horizontal pattern which indicates that the model will not be a good fit.
+plot(as.numeric(NaiveExp$fitted),as.numeric(NaiveExp$residuals), main = "Fitted vs. Residual Naive Model", xlab = "Expenditures (in millions)", ylab = "Residuals")
+plot(as.numeric(TourismExpTS),as.numeric(NaiveExp$residuals),main = "Tourism Expenditures vs. Residual Naive Model", xlab = "Expenditures (in millions)", ylab = "Residuals")
+Acf(NaiveExp$residuals)
+
+#Forecast
+
+#The next year forecast is 48837
+forecast(NaiveExp)
+#The MAPE is 16.84997 which is not a good probability so the naive model may not be the best model to use for this database.
+accuracy(NaiveExp)
+plot(forecast(NaiveExp), main = "Forecast using the Naive Model", xlab = "Year", ylab = "Expenditures (in millions)")
+
+#MA
+MA3Exp <- ma(TourismExpTS, order = 3)
+MA6Exp <- ma(TourismExpTS, order = 6)
+MA9Exp <- ma(TourismExpTS, order = 9)
+plot(TourismExpTS, main="Moving Average for Tourism Expenditures", ylab= "Expenditures (in millions)")
+lines(MA3Exp, col = "red")
+lines(MA6Exp, col = "blue")
+lines(MA9Exp, col = "green")
+forecast(MA3Exp)
+
+#Forecast
+
+#The forecast using the MA3 model is 150556.9.
+forecast(MA3Exp)
+#The MAPE is 3.576015 which is better than the naive model. 
+accuracy(forecast(MA3Exp))
+plot(forecast(MA3Exp), main= "Forecast of MA3", xlab= "Year", ylab = "Expenditures (in millions)")
+
+#Exponential Smoothing
+ets(TourismExpTS)
+etsExp <- ets(TourismExpTS)
+
+#Residual Analysis
+
+#The plot shows a consistent prediction around the range of zero showing the models high predictability rates.
+plot(etsExp$residuals, main= "Residuals of the Exponential Smoothing Model", xlab= "Year", ylab="Residuals")
+#The same as the plot there is a good predictability pattern in this model.
+hist(etsExp$residuals, main= "Histogram of Residuals", xlab= "Residuals")
+#The plot shows a horizontal pattern showing that this is a good model to use for predictability. 
+plot(as.numeric(etsExp$fitted), as.numeric(etsExp$residuals), main = "Fitted vs. Residual", xlab= "Expenditures (in millions", ylab= "Residuals")
+plot(as.numeric(TourismExpTS), as.numeric(etsExp$residuals), main = "Tourism Expenditures vs. Residual", xlab= "Expenditures (in millions", ylab= "Residuals")
+Acf(etsExp$residuals, main= "Acf of Residuals")
+
+#Forecast
+
+#The forecast using Exponential Smoothing is 48850.86
+forecast(etsExp)
+#Similar to the naive model the MAPE is 16.29219 which is not a good prediction rate.
+accuracy(etsExp)
+summary(etsExp)
+plot(forecast(etsExp), main = "Forecast using Exponential Smoothing", xlab= "Year", ylab = "Expenditures (in millions)")
+
+
+#ARIMA
+ndiffs(TourismExpTS)
+tsdisplay(TourismExpTS)
+TourExpDiff1 <- diff(TourismExpTS, differences = 1)
+#The plot shows a good pattern of surrounding the zero. 
+plot(TourExpDiff1, main= "Differences Chart for ARIMA", xlab = "Year")
+tsdisplay(TourExpDiff1)
+ExpAutoFit <- auto.arima(TourismExpTS, trace = TRUE, stepwise = FALSE)
+ExpAutoFit
+attributes(ExpAutoFit)
+#This graph shows the fitted ARIMA line which uses past data to predict future data.Using this method you could see the possible outcome of 2020 if the pendemic were not to occur. 
+plot(TourismExpTS, main = "ARIMA Fitted Graph")
+lines(ExpAutoFit$fitted, col= "red")
+
+#Residual Analysis
+Acf(ExpAutoFit$residuals, main = "Acf for Residuals using ARIMA")
+Box.test(residuals(ExpAutoFit), lag = 14, type = "Ljung")
+#The graph shows a good pattern in its prediction where most of the predictions are around the zero mark. 
+plot.ts(residuals(ExpAutoFit), main = "Residual Analysis", ylab = "Residuals")
+#The histogram shows the same pattern with a good predictability with an outlier in 2020.
+hist(ExpAutoFit$residuals, main = "Histogram of Residuals", xlab = "Residuals")
+tsdiag(ExpAutoFit)
+
+#Forecast
+#The forecast in this model is 48837.
+forecast(ExpAutoFit, h= 5)
+ExpArima <- forecast(ExpAutoFit, h= 5)
+#The accuracy using MAPE is 16.20574.
+accuracy(ExpArima)
+plot(ExpArima, main = "Forecast using ARIMA", xlab= "Year", ylab = "Expenditures (in millions)")
+
+
+#Summary
+accuracy(NaiveExp)
+plot(forecast(NaiveExp), main = "Forecast using the Naive Model", xlab = "Year", ylab = "Expenditures (in millions)")
+
+accuracy(forecast(MA3Exp))
+plot(forecast(MA3Exp), main= "Forecast of MA3", xlab= "Year", ylab = "Expenditures (in millions)")
+
+accuracy(etsExp)
+plot(forecast(etsExp), main = "Forecast using Exponential Smoothing", xlab= "Year", ylab = "Expenditures (in millions)")
+
+accuracy(ExpArima)
+plot(ExpArima, main = "Forecast using ARIMA", xlab= "Year", ylab = "Expenditures (in millions)")
+
+#The best model to use for this data set would have to be the Moving Average model due to its properties in assigning weights in past data to apply to the forecast. 2020 was a year that was not predictable and it shows within the data set the effects it has on international tourism expenditures in the US. So using the Moving average gave a good forecast prediction that took into account that 2020 was an outlier year but has a lasting effect on the years proceeding it. 
+
+```
+
+
